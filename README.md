@@ -1,7 +1,7 @@
 # Harmoino
 The repository contains a minimal example illustrating how to receive commands from a Logitech Harmony remote using an Arduino (or equivalent) and an NRF24L01+ radio chip connected via the SPI interface.
 
-# What and why
+## What and why
 I created this repository after researching how to repurpose my Harmony remote in a home automation project. I always liked the simple (and now discontinued) Harmony remote sold with the Harmony (Smart) Hub. It is, in my view, an excellent remote with good ergonomics and battery life. I was never similarly fond of the activity-based control schemes used in the Harmony system, so I wanted to repurpose the remote for home automation without involving the hub or Harmony software. However, the present repository is designed only to provide a minimal starting point for others to get started with their projects without requiring additional equipment other than the Arduino, the NRF24L01+ chip, and a Harmony remote (and its hub for setup). I initially used a Rohde and Schwarz signal and spectrum analyzer to gather data from packets transmitted between the remote and hub, but this is expensive equipment not readily available. Instead, the repository now has most radio parameters built into the code and a simple method to query the Hub for the unique Hub remote nRF24 network address used for the communications.
 
 ## Usage
