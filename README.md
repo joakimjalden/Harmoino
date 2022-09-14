@@ -14,7 +14,7 @@ One needs to know the unique network address used by the hub and the remote to u
 
 Make sure the remote and hub are paired. The remote and hub should already be paired if you have a new remote or have not messed with your old one. If not, follow the instructions on [support.myharmony.com](https://support.myharmony.com/en-gb/how-to-re-pair-harmony-with-your-remote-or-keyboard). Once the remote and hub are paired, run the **NetworkAdress.ino** sketch with a 9600 baud serial monitor. Make sure the Harmony Hub is powered on and press the pair/reset button on the back of the hub. Within a second or two, the *unique network adress* to use in the following steps should be printed to the serial monitor. Note that you do not need to configure the hub to take these steps. If you have an already configured hub, the LED on the front should turn green when fully booted. If the hub is not configured and connected to WiFi the LED may flash read once booted, but you can still enter the pairing mode at this stage.
 
-##¤ Using the sketch to receive button presses from the remote
+### Using the sketch to receive button presses from the remote
 Replace the dummy 0xFFFFFFFF address in the **SimpleHub.ino** sketch with the unique network address obtained in the previous step, and compile and run the sketch with a 9600 baud serial monitor. If all goes to plan, each RF24 packet transmitted from the remote should now be printed to the serial monitor. You will have to take it from here...
 
 ## The Harmony protocol in brief
