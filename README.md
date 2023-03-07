@@ -1,13 +1,13 @@
 # Harmoino
-The repository contains a minimal example illustrating how to receive commands from a Logitech Harmony remote using an Arduino (or equivalent) and an NRF24L01+ radio chip connected via the SPI interface.
+The repository contains a minimal example illustrating how to receive commands from a Logitech Harmony remote using an Arduino (or equivalent) and an NRF24L01+ radio chip connected via the SPI interface. The repository also includes a bridge between the Harmony remote and an mqtt broker.
 
 ## What and why
-I created this repository after researching how to repurpose my Harmony remote in a home automation project. I always liked the simple (and now discontinued) Harmony remote sold with the Harmony (Smart) Hub. It is, in my view, an excellent remote with good ergonomics and battery life. I was never similarly fond of the activity-based control schemes used in the Harmony system, so I wanted to repurpose the remote for home automation without involving the hub or Harmony software. However, the present repository is designed only to provide a minimal starting point for others to get started with their projects without requiring additional equipment other than the Arduino, the NRF24L01+ chip, and a Harmony remote (and its hub for setup). I initially used a Rohde and Schwarz signal and spectrum analyzer to gather data from packets transmitted between the remote and hub, but this is expensive equipment not readily available. Instead, the repository now has most radio parameters built into the code and a simple method to query the Hub for the unique Hub remote nRF24 network address used for the communications.
+I created this repository after researching how to repurpose my Harmony remote in a home automation project. I always liked the simple (and now discontinued) Harmony remote sold with the Harmony (Smart) Hub. It is, in my view, an excellent remote with good ergonomics and battery life. I was never similarly fond of the activity-based control schemes used in the Harmony system, so I wanted to repurpose the remote for home automation without involving the hub or Harmony software. However, the present repository is designed only to provide a minimal starting point for others to get started with their projects without requiring additional equipment other than the Arduino or an ESP32 board, the NRF24L01+ chip, and a Harmony remote (and its hub for setup). I initially used a Rohde and Schwarz signal and spectrum analyzer to gather data from packets transmitted between the remote and hub, but this is expensive equipment not readily available. Instead, the repository now has most radio parameters built into the code and a simple method to query the Hub for the unique Hub remote nRF24 network address used for the communications.
 
 ## Usage
 
-### Connecting the NRF24L01+ to the Arduino
-The NRF24L01+ chip needs to be connected to the Arduino via the SPI interface. I recommend following the excellent [Simple nRF24L01+ 2.4GHz transceiver demo](https://forum.arduino.cc/t/simple-nrf24l01-2-4ghz-transceiver-demo/405123) by Robin2, which also provides some discussions on troubleshooting. The sketches provided with this repository should work with no hardware modification if the CE_PIN and CNS_PIN definitions in the code are set as in the simple nRF24L01+ tutorial.
+### Connecting the NRF24L01+ to the Arduino or ESP32 board
+The NRF24L01+ chip needs to be connected to the Arduino or ESP32 via the SPI interface. I recommend following the excellent [Simple nRF24L01+ 2.4GHz transceiver demo](https://forum.arduino.cc/t/simple-nrf24l01-2-4ghz-transceiver-demo/405123) by Robin2, which also provides some discussions on troubleshooting. The sketches provided with this repository should work with no hardware modification if the CE_PIN and CNS_PIN definitions in the code are set as in the simple nRF24L01+ tutorial.
 
 ### Retrieve the unique RF24 network address
 One needs to know the unique network address used by the hub and the remote to use the central sketch of the repository. This address is unique to any particular pair of remote and hub and can be changed when pairing the remote to a hub. While it should be possible to assign the remote to any chosen address, I have not yet researched the protocol sufficiently to know how to do this. Instead, one will have to receive the address from the hub.
@@ -29,6 +29,24 @@ Finally, it should be noted that the packets contain a lot more information than
 ## Testing
 
 I have tested the scripts of the repository on an original Harmony branded Hub with the remote without a screen, and a more recent Logitech branded Harmony Companion remote (the one with buttons for smart home lights and switches) to make sure they work as intended. I have, however, not had access to the Logitech Harmony Ultimate All in One Remote with Customizable Touch Screen or older Harmony (RF) remotes. I would thus appreciate feedback if you could get it to work with one of these.
+
+## The MQTT hub sketch
+
+To make the project a bit more useful for home automation, the MQTT hub sketch provides a bridge between the Harmony remote and and MQTT broker, such as the Mosquitto broker in Home Assistant. The sole purpose of the hub is to translate nRF24L01 messages received from the remote to human readable short strings that can be pubslished to an MQTT topic of choice. The code needs to be set up by entering the nRF24L01 network key, along with the WiFi and MQTT credentials and MQTT topic.
+
+Each button on the Harmony remote is mapped to a unique short string found in the harmony_command_list in the code. Each button can be configured as one to three types (type 0, 1 or 2) depending on intended use, and to strike a balance between responsiveness and expressiveness. The function of the different types are described below.
+
+#### Button type 0
+
+A type 0 button sends the MQTT string (paylodad) to the broker immediately as the button is pressed. If the button is released and pressed again, the string is sent again. This button has the potential to feel very responsive and is suitable for, for example, the left, right, up, and down buttons on the d-pad of the remote when these are used to traverse menus.
+
+#### Button type 1
+
+A type 1 works just like the type 0 button, with the addition that the button will repeadely send the MQTT string to the broker when the button is held down for a longer period. The rate at which the button message is pubished can be configured in the code, but setting the duration to the first resubmission and the duration between any following submissions. This type of button is suitabel for buttons like the volume buttons to smootly increase of decrese the volume of some entity by holding down the corresponding button. The button still feels very responsive given that the first message is sent immediately.
+
+#### Button type 2
+
+This button provide more functionality by detecting single clicks, double clicks, multiple clicks (three or more), and long button presses. A single MQTT message is sent to the broker with the message string for the button in question, with "_click", "_double", "_multiple" or "_long" appended at the end. The code is easily modified to distinquis between tripple and quadruple clicks, but this is starting to become hard to physically enter via the remote. The downside of this type is that the hub needs to wait before sending the MQTT message to see if another click is coming, and this makes the button feel less responsive than buttons assigned to type 0 or type 1.
 
 ## Acknowledgements
 
